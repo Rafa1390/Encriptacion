@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -17,10 +20,9 @@ public class SymetricEncrypt implements Encryptor{
 	private final String KEY_EXTENSION = ".key";
 	private final String PATH = "C:/encrypt/symetric/";
 	private final String ALG = String.valueOf(ALGType.AES);
+	private DataEncryptManager dataManager = new DataEncryptManager();
 	
-	private DataEncryptManager dataManager;
-	
-	public void createKey(String name) throws Exception {
+	public void createKey(String name) throws Exception, IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		byte [] key = generatedSequenceOfBytes();
 		dataManager.writeBytesFile(name,key,KEY_EXTENSION, PATH);
 	}

@@ -20,7 +20,9 @@ import java.security.PublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import com.cenfotec.data.ALGType;
@@ -32,10 +34,9 @@ public class AsymetricEncrypt implements Encryptor{
 	private final String PUBLIC = "public";
 	private final String PRIVATE = "private";
 	private final String PATH = "C:/encrypt/asymetric/";
-	private final String ALG = String.valueOf(ALGType.RSA);
-	private enum EncryptType {ENCRYPT, DECRYPT;};
 	
-	private DataEncryptManager dataManager;
+	private final String ALG = String.valueOf(ALGType.RSA);//new
+	private DataEncryptManager dataManager = new DataEncryptManager();//new
 	
 	public void createKey(String name) throws Exception {
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance(ALG);
@@ -66,34 +67,18 @@ public class AsymetricEncrypt implements Encryptor{
 		}
 	}
 
-	public void encryptMessage(String messageName, String message, String keyName) throws Exception {
-		EncryptType encryptType = EncryptType.ENCRYPT;
-		Cipher cipher = createCipher(keyName, encryptType);
+	public void encryptMessage(String messageName, String message, String keyName) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException{
+		PublicKey pubKey = (PublicKey)readKeyFromFile(keyName, PUBLIC);
+		Cipher cipher = Cipher.getInstance(ALG);
+		cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 		dataManager.encryptData(messageName, message, cipher, PATH);
 	}
 	
 	public void decryptMessage(String messageName, String keyName) throws Exception {
-		EncryptType encryptType = EncryptType.DECRYPT;
-		Cipher cipher = createCipher(keyName, encryptType);
-		dataManager.decodeData(messageName, cipher, PATH);
-	}
-
-	public Cipher createCipher(String keyName, EncryptType encryptType) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
-		Key encKey = createEncryptKey(keyName, encryptType);
+		PrivateKey privKey = (PrivateKey)readKeyFromFile(keyName, PRIVATE);
 		Cipher cipher = Cipher.getInstance(ALG);
-		cipher.init(Cipher.ENCRYPT_MODE, encKey);
-		return cipher;
-	}
-	
-	public Key createEncryptKey(String keyName, EncryptType encryptType) throws IOException {
-		switch(encryptType) {
-		case ENCRYPT:
-			return (PublicKey)readKeyFromFile(keyName, PUBLIC);
-		case DECRYPT:
-			return (PrivateKey)readKeyFromFile(keyName, PRIVATE);
-		default:
-			return null;
-		}
+		cipher.init(Cipher.DECRYPT_MODE, privKey);
+		dataManager.decodeData(messageName, cipher, PATH);
 	}
 	
 	Key readKeyFromFile(String keyFileName, String type) throws IOException {

@@ -12,8 +12,6 @@ public class UI {
 	static PrintStream out = System.out;
 	static Encryptor encryptor;
 	
-	//private static EncryptManager encryptManager = new EncryptManager();
-	
 	public static void main(String[] args) throws Exception {
 		int option = 0;
 		do {
@@ -58,7 +56,7 @@ public class UI {
 			String messageName = in.readLine();
 			out.println("Message: ");
 			String message = in.readLine();
-			encryptor.encryptMessage(messageName,message,name);		
+			encryptor.encryptMessage(messageName,message,name);
 		}
 		if (option == 3){
 			out.println("Key name: ");
